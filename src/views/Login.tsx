@@ -4,11 +4,55 @@ import { KeyRound, MoveRight, UserRound } from "lucide-react";
 import { Label } from "../components/ui/Label";
 import { Button } from "../components/ui/Button";
 import { Logo } from "../components/ui/Logo";
+import request from "../lib/request";
 
-export class Login extends React.Component {
+interface State {
+  loading: boolean;
+  form: {
+    user: string;
+    password: string;
+  };
+  error: string | null;
+}
+
+export class Login extends React.Component<{}, State> {
   constructor(props: {}) {
     super(props);
+
+    this.state = {
+      loading: false,
+      form: {
+        user: "",
+        password: "",
+      },
+      error: null,
+    };
   }
+
+  handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    this.setState((prevState) => ({
+      form: {
+        ...prevState.form,
+        [name]: value,
+      },
+    }));
+  };
+
+  handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    try {
+      e.preventDefault();
+      this.setState({ loading: true, error: null });
+      await request.post("/api/auth/login", {
+        username: this.state.form.user,
+        password: this.state.form.password,
+      });
+    } catch (error: any) {
+      this.setState({ error: error.message });
+    } finally {
+      this.setState({ loading: false });
+    }
+  };
 
   render() {
     return (
@@ -51,12 +95,18 @@ export class Login extends React.Component {
                 </p>
               </div>
             </div>
-            <form className="d-flex flex-column gap-3 mt-4">
+            <form
+              onSubmit={this.handleSubmit}
+              className="d-flex flex-column gap-3 mt-4"
+            >
               <div className="d-flex flex-column gap-1">
                 <Label htmlFor="user">Usuario</Label>
                 <Input
+                  value={this.state.form.user}
+                  onChange={this.handleChange}
                   type="text"
                   id="user"
+                  name="user"
                   placeholder="Usuario"
                   Icon={UserRound}
                   required
@@ -65,15 +115,23 @@ export class Login extends React.Component {
               <div className="d-flex flex-column gap-1">
                 <Label htmlFor="password">Contraseña</Label>
                 <Input
+                  value={this.state.form.password}
+                  onChange={this.handleChange}
                   type="password"
                   id="password"
+                  name="password"
                   placeholder="Contraseña"
                   Icon={KeyRound}
                   required
                 />
               </div>
               <div className="position-relative mt-4">
-                <Button className="w-100" Icon={MoveRight} iconPosition="end">
+                <Button
+                  type="submit"
+                  className="w-100"
+                  Icon={MoveRight}
+                  iconPosition="end"
+                >
                   Iniciar Sesión
                 </Button>
               </div>

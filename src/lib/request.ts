@@ -21,7 +21,7 @@ class Request {
       method: "POST",
       headers: formDataContent ? {} : { "Content-Type": "application/json" },
       credentials: "include",
-      body: body,
+      body: formDataContent ? body : JSON.stringify(body),
     });
     const data: ApiResponse<T> = await res.json();
 
