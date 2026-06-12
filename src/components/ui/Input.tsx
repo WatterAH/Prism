@@ -22,7 +22,7 @@ export class Input extends React.Component<Props> {
             color="#737373"
             style={{
               position: "absolute",
-              top: "0.5rem",
+              top: "0.7rem",
               left: "0.75rem",
             }}
           />

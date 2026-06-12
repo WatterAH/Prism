@@ -14,12 +14,13 @@ module.exports = {
     port: 3000,
     open: true,
     hot: true,
+    static: { directory: path.join(__dirname, "public") },
     proxy: [
       {
-        context: ["/prism"],
+        context: ["/api"],
         target: "http://localhost:8080",
         changeOrigin: true,
-        pathRewrite: { "^/api": "" },
+        pathRewrite: { "^/api": "/PrismBackend/api" },
       },
     ],
   },
@@ -35,6 +36,11 @@ module.exports = {
       {
         test: /\.css$/,
         use: ["style-loader", "css-loader"],
+      },
+      {
+        test: /\.(png|jpg|jpeg|gif|webp|svg)$/,
+        type: "asset/resource",
+        generator: { filename: "img/[name][ext]" },
       },
     ],
   },

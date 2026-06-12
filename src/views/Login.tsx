@@ -1,10 +1,17 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import bgImage from "../assets/background.png";
 import { Input } from "../components/ui/Input";
 import { KeyRound, MoveRight, UserRound } from "lucide-react";
 import { Label } from "../components/ui/Label";
 import { Button } from "../components/ui/Button";
 import { Logo } from "../components/ui/Logo";
-import request from "../lib/request";
+import request, { ApiError } from "../lib/request";
+import { toast } from "sonner";
+
+interface Props {
+  onSuccess: (user: any) => void;
+}
 
 interface State {
   loading: boolean;
@@ -12,20 +19,24 @@ interface State {
     user: string;
     password: string;
   };
-  error: string | null;
 }
 
-export class Login extends React.Component<{}, State> {
-  constructor(props: {}) {
+export function LoginPage() {
+  const navigate = useNavigate();
+  const handleSuccess = (user: any) => {
+    sessionStorage.setItem("user", JSON.stringify(user));
+    navigate("/dashboard");
+  };
+  return <Login onSuccess={handleSuccess} />;
+}
+
+class Login extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
       loading: false,
-      form: {
-        user: "",
-        password: "",
-      },
-      error: null,
+      form: { user: "", password: "" },
     };
   }
 
@@ -42,13 +53,19 @@ export class Login extends React.Component<{}, State> {
   handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault();
-      this.setState({ loading: true, error: null });
-      await request.post("/api/auth/login", {
+      this.setState({ loading: true });
+      const user = await request.post("/api/auth/login", {
         username: this.state.form.user,
         password: this.state.form.password,
       });
+      this.props.onSuccess(user);
     } catch (error: any) {
-      this.setState({ error: error.message });
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else {
+        toast.error("Error al iniciar sesión");
+      }
+      this.setState({ form: { user: "", password: "" } });
     } finally {
       this.setState({ loading: false });
     }
@@ -58,7 +75,13 @@ export class Login extends React.Component<{}, State> {
     return (
       <div
         id="login-view"
-        className="container-fluid d-flex flex-column justify-content-center align-items-center w-100 vh-100"
+        className="container-fluid d-flex flex-column justify-content-center w-100 vh-100"
+        style={{
+          backgroundImage: `url(${bgImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          paddingLeft: "18%",
+        }}
       >
         <div
           className="card rounded-4 px-3 pt-3 pb-0"
@@ -91,7 +114,7 @@ export class Login extends React.Component<{}, State> {
                     color: "#737373",
                   }}
                 >
-                  Ánalisis y Diseño de Sistemas
+                  Análisis y Diseño de Sistemas
                 </p>
               </div>
             </div>
@@ -125,26 +148,45 @@ export class Login extends React.Component<{}, State> {
                   required
                 />
               </div>
-              <div className="position-relative mt-4">
+              <div className="position-relative mt-3">
                 <Button
                   type="submit"
+                  style={{ height: "40px" }}
                   className="w-100"
-                  Icon={MoveRight}
+                  Icon={this.state.loading ? undefined : MoveRight}
                   iconPosition="end"
+                  disabled={this.state.loading}
                 >
-                  Iniciar Sesión
+                  {this.state.loading ? (
+                    <div className="spinner-border spinner-border-sm" />
+                  ) : (
+                    <span>Iniciar Sesión</span>
+                  )}
                 </Button>
               </div>
             </form>
-            <p
-              className="mt-4 text-center"
-              style={{
-                fontSize: "12px",
-                color: "#737373",
-              }}
-            >
-              Acceso restringido · Prism © 2026
-            </p>
+            <div className="mt-4 text-center">
+              <hr className="my-2" style={{ borderColor: "#e5e5e5" }} />
+              <p
+                className="mb-1"
+                style={{
+                  fontSize: "10px",
+                  letterSpacing: "0.08em",
+                  color: "#a3a3a3",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                }}
+              >
+                Equipo
+              </p>
+              <p
+                className="mb-2"
+                style={{ fontSize: "12px", color: "#737373" }}
+              >
+                Verónica De la Rosa Benítez • David Peña Pedraza • Samuel
+                Oswaldo Tlahuel Méndez
+              </p>
+            </div>
           </div>
         </div>
       </div>
