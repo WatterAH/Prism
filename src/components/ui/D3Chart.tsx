@@ -14,6 +14,11 @@ interface Props {
   height?: number;
 }
 
+/*
+ * Componente de gráfica reutilizable construido sobre D3.js.
+ * Soporta los tipos: BAR, LINE, AREA, PIE y DONUT.
+ * Los colores se interpolan entre primaryColor y secondaryColor para generar la paleta.
+ */
 export function D3Chart({
   type,
   data,
@@ -30,6 +35,7 @@ export function D3Chart({
   useEffect(() => {
     if (!svgRef.current || !data.length) return;
     const svg = d3.select(svgRef.current);
+    // Limpia el SVG antes de redibujar para evitar que elementos anteriores se acumulen
     svg.selectAll("*").remove();
     svg.attr("width", width).attr("height", height);
 
@@ -45,6 +51,7 @@ export function D3Chart({
         .text(title);
     }
 
+    // El padding superior varía según si existe título para no superponer elementos
     const topPad = title ? 32 : 16;
 
     switch (type) {
@@ -60,6 +67,7 @@ export function D3Chart({
       case "PIE":
         renderPie(svg, data, width, height, topPad, primaryColor, secondaryColor, false);
         break;
+      // DONUT es igual que PIE pero con innerRadius > 0
       case "DONUT":
         renderPie(svg, data, width, height, topPad, primaryColor, secondaryColor, true);
         break;
@@ -71,6 +79,7 @@ export function D3Chart({
 
 type Svg = d3.Selection<SVGSVGElement, unknown, null, undefined>;
 
+// Dibuja una gráfica de barras verticales; un solo color para todas las barras
 function renderBar(
   svg: Svg,
   data: ChartPoint[],
@@ -82,6 +91,7 @@ function renderBar(
   yLabel?: string | null,
 ) {
   const maxLabelLen = Math.max(...data.map((d) => d.label.length));
+  // Rota las etiquetas del eje X si hay muchos datos o las etiquetas son largas
   const rotate = data.length > 3 || maxLabelLen > 7;
   const margin = {
     top: topPad,
@@ -121,6 +131,7 @@ function renderBar(
     .text((d) => d.value);
 }
 
+// Dibuja una gráfica de líneas con puntos y etiquetas de valor sobre cada punto
 function renderLine(
   svg: Svg,
   data: ChartPoint[],
@@ -186,6 +197,7 @@ function renderLine(
     .text((d) => d.value);
 }
 
+// Dibuja una gráfica de área con degradado vertical del color primario a transparente
 function renderArea(
   svg: Svg,
   data: ChartPoint[],
@@ -259,6 +271,11 @@ function renderArea(
     .attr("stroke-width", 2);
 }
 
+/*
+ * Dibuja una gráfica de pastel (PIE) o dona (DONUT).
+ * donut = true → innerRadius = 55% del radio → agujero central.
+ * Incluye etiquetas de porcentaje en los segmentos ≥ 6% y una leyenda lateral.
+ */
 function renderPie(
   svg: Svg,
   data: ChartPoint[],
@@ -275,6 +292,7 @@ function renderPie(
   const cx = width / 2;
   const cy = topPad + availH / 2;
 
+  // Genera una paleta de N colores interpolando entre primary y secondary
   const palette = interpolateColors(primary, secondary, data.length);
   const g = svg.append("g").attr("transform", `translate(${cx},${cy})`);
 
@@ -339,6 +357,11 @@ function renderPie(
   });
 }
 
+/*
+ * Agrega los ejes X e Y al grupo SVG.
+ * Si rotate = true, inclina las etiquetas del eje X 35° para evitar solapamiento.
+ * Añade las etiquetas de los ejes si se proporcionaron.
+ */
 function drawAxes(
   g: d3.Selection<SVGGElement, unknown, null, undefined>,
   x: d3.AxisScale<any>,

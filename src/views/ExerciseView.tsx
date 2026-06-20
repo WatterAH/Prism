@@ -21,6 +21,11 @@ function getUser() {
   }
 }
 
+/*
+ * Vista de solo lectura de un ejercicio.
+ * Muestra título, instrucciones, opciones (con indicador visual de la respuesta correcta),
+ * gráfica D3 opcional, explicación y multimedia.
+ */
 export function ExerciseViewPage() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -41,6 +46,7 @@ export function ExerciseViewPage() {
     navigate("/");
   };
 
+  // Convierte chartDataJson (string) al array ChartPoint[] que necesita D3Chart
   const chartData = exercise ? normalizeChartData(exercise.chartDataJson) : null;
   const diffColor = exercise ? DIFFICULTY_COLOR[exercise.difficulty] : null;
 
