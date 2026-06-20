@@ -48,7 +48,7 @@ class Request {
     const res = await fetch(BASE_URL + url, {
       method: "PUT",
       headers: formDataContent ? {} : { "Content-Type": "application/json" },
-      body: body,
+      body: formDataContent ? body : JSON.stringify(body),
     });
     const data: ApiResponse<T> = await res.json();
 

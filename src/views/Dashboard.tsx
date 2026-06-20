@@ -1,8 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Logo } from "../components/ui/Logo";
-import { Button } from "../components/ui/Button";
 import { Plus, LogOut } from "lucide-react";
+import { toast } from "sonner";
+import request from "../lib/request";
+import { Exercise } from "../types";
 
 interface User {
   userId: number;
@@ -14,12 +16,29 @@ interface Props {
   navigate: (path: string) => void;
 }
 
+interface State {
+  exercises: Exercise[];
+  loading: boolean;
+  deleteId: number | null;
+  deleting: boolean;
+}
+
 export function DashboardPage() {
   const navigate = useNavigate();
   return <Dashboard navigate={navigate} />;
 }
 
-class Dashboard extends React.Component<Props> {
+class Dashboard extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      exercises: [],
+      loading: true,
+      deleteId: null,
+      deleting: false,
+    };
+  }
+
   get user(): User | null {
     try {
       return JSON.parse(sessionStorage.getItem("user") || "null");
@@ -28,12 +47,45 @@ class Dashboard extends React.Component<Props> {
     }
   }
 
+  componentDidMount() {
+    this.fetchExercises();
+  }
+
+  fetchExercises = async () => {
+    try {
+      this.setState({ loading: true });
+      const exercises = await request.get<Exercise[]>("/api/exercises");
+      this.setState({ exercises });
+    } catch {
+      toast.error("Error al cargar los ejercicios");
+    } finally {
+      this.setState({ loading: false });
+    }
+  };
+
   handleLogout = () => {
     sessionStorage.removeItem("user");
     this.props.navigate("/");
   };
 
+  handleDeleteConfirm = async () => {
+    const { deleteId } = this.state;
+    if (!deleteId) return;
+    try {
+      this.setState({ deleting: true });
+      await request.delete(`/api/exercises/${deleteId}`);
+      toast.success("Ejercicio eliminado");
+      this.setState({ deleteId: null, deleting: false });
+      this.fetchExercises();
+    } catch {
+      toast.error("Error al eliminar el ejercicio");
+      this.setState({ deleting: false });
+    }
+  };
+
   render() {
+    const { exercises, loading, deleteId, deleting } = this.state;
+
     return (
       <div
         style={{
@@ -44,6 +96,55 @@ class Dashboard extends React.Component<Props> {
           padding: "24px",
         }}
       >
+        {/* Delete confirmation overlay */}
+        {deleteId !== null && (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              backgroundColor: "rgba(0,0,0,0.25)",
+              zIndex: 1000,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <div className="card rounded-4 p-4" style={{ maxWidth: 320, width: "100%" }}>
+              <p
+                style={{
+                  fontFamily: '"Space Grotesk", sans-serif',
+                  fontWeight: 600,
+                  color: "#16140f",
+                  marginBottom: 4,
+                  fontSize: 15,
+                }}
+              >
+                Alerta
+              </p>
+              <p style={{ color: "#737373", fontSize: 14, marginBottom: 20 }}>
+                ¿Eliminar el siguiente ejercicio?
+              </p>
+              <div className="d-flex gap-2">
+                <button
+                  className="btn btn-dark btn-sm px-4"
+                  onClick={this.handleDeleteConfirm}
+                  disabled={deleting}
+                >
+                  {deleting ? <span className="spinner-border spinner-border-sm" /> : "Sí"}
+                </button>
+                <button
+                  className="btn btn-outline-secondary btn-sm px-4"
+                  onClick={() => this.setState({ deleteId: null })}
+                  disabled={deleting}
+                >
+                  No
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Navbar */}
         <div
           className="card rounded-4 px-4 py-3 d-flex flex-row align-items-center justify-content-between mb-4"
           style={{ backgroundColor: "#fff" }}
@@ -91,6 +192,7 @@ class Dashboard extends React.Component<Props> {
           </button>
         </div>
 
+        {/* Content card */}
         <div className="card rounded-4 px-4 pt-4 pb-3" style={{ backgroundColor: "#fff" }}>
           <div className="d-flex align-items-center justify-content-between mb-4">
             <div>
@@ -119,9 +221,14 @@ class Dashboard extends React.Component<Props> {
                 Crear, altas, bajas y cambios de ejercicios
               </h4>
             </div>
-            <Button Icon={Plus} iconPosition="start">
+            <button
+              onClick={() => this.props.navigate("/exercises/new")}
+              className="btn btn-dark btn-sm d-flex align-items-center gap-2"
+              style={{ fontSize: "13px", borderRadius: "8px", padding: "8px 14px" }}
+            >
+              <Plus size={14} />
               Crear ejercicio
-            </Button>
+            </button>
           </div>
 
           <table className="table" style={{ fontSize: "14px" }}>
@@ -135,7 +242,6 @@ class Dashboard extends React.Component<Props> {
                     fontWeight: 500,
                     color: "#737373",
                     paddingBottom: "10px",
-                    width: "120px",
                   }}
                 >
                   Acciones
@@ -143,11 +249,81 @@ class Dashboard extends React.Component<Props> {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td colSpan={2} className="text-center py-4" style={{ color: "#a3a3a3" }}>
-                  No hay ejercicios registrados.
-                </td>
-              </tr>
+              {loading ? (
+                <tr>
+                  <td colSpan={2} className="text-center py-4">
+                    <span className="spinner-border spinner-border-sm" style={{ color: "#737373" }} />
+                  </td>
+                </tr>
+              ) : exercises.length === 0 ? (
+                <tr>
+                  <td colSpan={2} className="text-center py-4" style={{ color: "#a3a3a3" }}>
+                    No hay ejercicios registrados.
+                  </td>
+                </tr>
+              ) : (
+                exercises.map((ex) => {
+                  const linkStyle: React.CSSProperties = {
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    fontSize: "13px",
+                    color: "#16140f",
+                    textDecoration: "underline",
+                    textUnderlineOffset: "3px",
+                    textDecorationColor: "#d4d4d4",
+                    cursor: "pointer",
+                  };
+                  const dangerLinkStyle: React.CSSProperties = {
+                    ...linkStyle,
+                    color: "#b91c1c",
+                    textDecorationColor: "#fecaca",
+                  };
+                  const sepStyle: React.CSSProperties = {
+                    color: "#d4d4d4",
+                    fontSize: "12px",
+                    userSelect: "none",
+                  };
+                  return (
+                    <tr key={ex.exerciseId} style={{ borderColor: "#f4f3f0" }}>
+                      <td style={{ verticalAlign: "middle", color: "#16140f" }}>
+                        {ex.title}
+                      </td>
+                      <td style={{ verticalAlign: "middle" }}>
+                        <div className="d-flex align-items-center gap-2 flex-wrap">
+                          <button
+                            style={linkStyle}
+                            onClick={() => this.props.navigate(`/exercises/${ex.exerciseId}`)}
+                          >
+                            Ver ejercicio
+                          </button>
+                          <span style={sepStyle}>|</span>
+                          <button
+                            style={linkStyle}
+                            onClick={() => this.props.navigate(`/exercises/${ex.exerciseId}/edit`)}
+                          >
+                            Modificar ejercicio
+                          </button>
+                          <span style={sepStyle}>|</span>
+                          <button
+                            style={dangerLinkStyle}
+                            onClick={() => this.setState({ deleteId: ex.exerciseId })}
+                          >
+                            Eliminar ejercicio
+                          </button>
+                          <span style={sepStyle}>|</span>
+                          <button
+                            style={linkStyle}
+                            onClick={() => this.props.navigate(`/exercises/${ex.exerciseId}/probar`)}
+                          >
+                            Probar ejercicio
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
