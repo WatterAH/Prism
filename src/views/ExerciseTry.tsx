@@ -90,13 +90,16 @@ export function ExerciseTryPage() {
     navigate("/");
   };
 
-  const chartData = exercise ? normalizeChartData(exercise.chartDataJson) : null;
+  const chartData = exercise
+    ? normalizeChartData(exercise.chartDataJson)
+    : null;
 
   return (
     <div
       style={{
         backgroundColor: "#f4f3f0",
-        backgroundImage: "radial-gradient(circle, #d1d1d1 1px, transparent 1px)",
+        backgroundImage:
+          "radial-gradient(circle, #d1d1d1 1px, transparent 1px)",
         backgroundSize: "24px 24px",
         minHeight: "100vh",
         padding: "24px",
@@ -123,7 +126,9 @@ export function ExerciseTryPage() {
             </h3>
             <p className="mb-0" style={{ fontSize: "13px", color: "#737373" }}>
               Bienvenido,{" "}
-              <span style={{ fontWeight: 500, color: "#16140f" }}>{user?.username ?? "—"}</span>
+              <span style={{ fontWeight: 500, color: "#16140f" }}>
+                {user?.username ?? "—"}
+              </span>
             </p>
           </div>
         </div>
@@ -166,9 +171,17 @@ export function ExerciseTryPage() {
           <span className="spinner-border" style={{ color: "#737373" }} />
         </div>
       ) : !exercise ? (
-        <div className="card rounded-4 p-4 text-center" style={{ backgroundColor: "#fff" }}>
-          <p style={{ color: "#737373", marginBottom: 12 }}>Ejercicio no encontrado.</p>
-          <button className="btn btn-dark btn-sm" onClick={() => navigate("/dashboard")}>
+        <div
+          className="card rounded-4 p-4 text-center"
+          style={{ backgroundColor: "#fff" }}
+        >
+          <p style={{ color: "#737373", marginBottom: 12 }}>
+            Ejercicio no encontrado.
+          </p>
+          <button
+            className="btn btn-dark btn-sm"
+            onClick={() => navigate("/dashboard")}
+          >
             Volver al dashboard
           </button>
         </div>
@@ -196,7 +209,10 @@ export function ExerciseTryPage() {
 
           <div
             className="text-center py-2"
-            style={{ backgroundColor: "#f9f9f9", borderBottom: "1px solid #e8e8e8" }}
+            style={{
+              backgroundColor: "#f9f9f9",
+              borderBottom: "1px solid #e8e8e8",
+            }}
           >
             <span
               style={{
@@ -215,7 +231,10 @@ export function ExerciseTryPage() {
             <div
               className="flex-grow-1 p-4"
               style={{
-                borderRight: chartData && exercise.chartType ? "1px solid #e8e8e8" : "none",
+                borderRight:
+                  chartData && exercise.chartType
+                    ? "1px solid #e8e8e8"
+                    : "none",
                 minWidth: 280,
               }}
             >
@@ -231,18 +250,30 @@ export function ExerciseTryPage() {
                     <img
                       src={exercise.mediaPath}
                       alt="Media del ejercicio"
-                      style={{ maxWidth: "100%", borderRadius: 6, maxHeight: 200 }}
+                      style={{
+                        maxWidth: "100%",
+                        borderRadius: 6,
+                        maxHeight: 200,
+                      }}
                     />
                   )}
                   {exercise.mediaType === "VIDEO" && (
                     <video
                       src={exercise.mediaPath}
                       controls
-                      style={{ maxWidth: "100%", borderRadius: 6, maxHeight: 200 }}
+                      style={{
+                        maxWidth: "100%",
+                        borderRadius: 6,
+                        maxHeight: 200,
+                      }}
                     />
                   )}
                   {exercise.mediaType === "AUDIO" && (
-                    <audio src={exercise.mediaPath} controls style={{ width: "100%" }} />
+                    <audio
+                      src={exercise.mediaPath}
+                      controls
+                      style={{ width: "100%" }}
+                    />
                   )}
                 </div>
               )}
@@ -275,11 +306,16 @@ export function ExerciseTryPage() {
                         border: `1px solid ${
                           isSelected && !isEvaluated ? "#16140f" : borderColor
                         }`,
-                        backgroundColor: isSelected && !isEvaluated ? "#fafafa" : bgColor,
+                        backgroundColor:
+                          isSelected && !isEvaluated ? "#fafafa" : bgColor,
                       }}
                     >
                       <input
-                        type={exercise.questionType === "SINGLE_CHOICE" ? "radio" : "checkbox"}
+                        type={
+                          exercise.questionType === "SINGLE_CHOICE"
+                            ? "radio"
+                            : "checkbox"
+                        }
                         name="exercise-option"
                         checked={isSelected}
                         onChange={() => toggleSelect(optId)}
@@ -297,10 +333,13 @@ export function ExerciseTryPage() {
                             isEvaluated && isCorrect
                               ? "#16803c"
                               : isEvaluated && isSelected && !isCorrect
-                              ? "#dc2626"
-                              : "#16140f",
+                                ? "#dc2626"
+                                : "#16140f",
                           fontWeight:
-                            isEvaluated && (isCorrect || (isSelected && !isCorrect)) ? 600 : 400,
+                            isEvaluated &&
+                            (isCorrect || (isSelected && !isCorrect))
+                              ? 600
+                              : 400,
                         }}
                       >
                         {opt.text}
@@ -332,7 +371,9 @@ export function ExerciseTryPage() {
                   >
                     Explicación
                   </p>
-                  <p style={{ fontSize: 13, color: "#1e3a8a", marginBottom: 0 }}>
+                  <p
+                    style={{ fontSize: 13, color: "#1e3a8a", marginBottom: 0 }}
+                  >
                     {exercise.explanation}
                   </p>
                 </div>
@@ -411,8 +452,8 @@ export function ExerciseTryPage() {
                     result === "correct"
                       ? "#16803c"
                       : result === "incorrect"
-                      ? "#dc2626"
-                      : "#a3a3a3",
+                        ? "#dc2626"
+                        : "#a3a3a3",
                   border: "1px solid #e8e8e8",
                   borderRadius: 6,
                   padding: "4px 14px",
@@ -424,8 +465,8 @@ export function ExerciseTryPage() {
                 {result === "correct"
                   ? "VERDADERO"
                   : result === "incorrect"
-                  ? "FALSO"
-                  : "—"}
+                    ? "FALSO"
+                    : "—"}
               </span>
 
               <span style={{ fontSize: 13, fontWeight: 700, color: "#16140f" }}>

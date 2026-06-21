@@ -338,7 +338,7 @@ class Dashboard extends React.Component<Props, State> {
                           <span style={sepStyle}>|</span>
                           <button
                             style={dangerLinkStyle}
-                            onClick={() => this.setState({ deleteId: ex.exerciseId })}
+                            onClick={() => this.setState({ deleteId: ex.exerciseId! })}
                           >
                             Eliminar ejercicio
                           </button>

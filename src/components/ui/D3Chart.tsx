@@ -49,22 +49,79 @@ export function D3Chart({
 
     switch (type) {
       case "BAR":
-        renderBar(svg, data, width, height, topPad, primaryColor, xLabel, yLabel);
+        renderBar(
+          svg,
+          data,
+          width,
+          height,
+          topPad,
+          primaryColor,
+          xLabel,
+          yLabel,
+        );
         break;
       case "LINE":
-        renderLine(svg, data, width, height, topPad, primaryColor, secondaryColor, xLabel, yLabel);
+        renderLine(
+          svg,
+          data,
+          width,
+          height,
+          topPad,
+          primaryColor,
+          secondaryColor,
+          xLabel,
+          yLabel,
+        );
         break;
       case "AREA":
-        renderArea(svg, data, width, height, topPad, primaryColor, secondaryColor, xLabel, yLabel);
+        renderArea(
+          svg,
+          data,
+          width,
+          height,
+          topPad,
+          primaryColor,
+          secondaryColor,
+          xLabel,
+          yLabel,
+        );
         break;
       case "PIE":
-        renderPie(svg, data, width, height, topPad, primaryColor, secondaryColor, false);
+        renderPie(
+          svg,
+          data,
+          width,
+          height,
+          topPad,
+          primaryColor,
+          secondaryColor,
+          false,
+        );
         break;
       case "DONUT":
-        renderPie(svg, data, width, height, topPad, primaryColor, secondaryColor, true);
+        renderPie(
+          svg,
+          data,
+          width,
+          height,
+          topPad,
+          primaryColor,
+          secondaryColor,
+          true,
+        );
         break;
     }
-  }, [type, data, title, xLabel, yLabel, primaryColor, secondaryColor, width, height]);
+  }, [
+    type,
+    data,
+    title,
+    xLabel,
+    yLabel,
+    primaryColor,
+    secondaryColor,
+    width,
+    height,
+  ]);
 
   return <svg ref={svgRef} style={{ overflow: "visible" }} />;
 }
@@ -91,11 +148,20 @@ function renderBar(
   };
   const innerW = width - margin.left - margin.right;
   const innerH = height - margin.top - margin.bottom;
-  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+  const g = svg
+    .append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  const x = d3.scaleBand().domain(data.map((d) => d.label)).range([0, innerW]).padding(0.25);
+  const x = d3
+    .scaleBand()
+    .domain(data.map((d) => d.label))
+    .range([0, innerW])
+    .padding(0.25);
   const max = d3.max(data, (d) => d.value) ?? 0;
-  const y = d3.scaleLinear().domain([0, max * 1.15]).range([innerH, 0]);
+  const y = d3
+    .scaleLinear()
+    .domain([0, max * 1.15])
+    .range([innerH, 0]);
 
   drawAxes(g, x, y, innerH, rotate, xLabel, yLabel, innerW);
 
@@ -142,12 +208,21 @@ function renderLine(
   };
   const innerW = width - margin.left - margin.right;
   const innerH = height - margin.top - margin.bottom;
-  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+  const g = svg
+    .append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  const x = d3.scalePoint().domain(data.map((d) => d.label)).range([0, innerW]).padding(0.5);
+  const x = d3
+    .scalePoint()
+    .domain(data.map((d) => d.label))
+    .range([0, innerW])
+    .padding(0.5);
   const [minV, maxV] = d3.extent(data, (d) => d.value) as [number, number];
   const pad = (maxV - minV) * 0.15 || 1;
-  const y = d3.scaleLinear().domain([minV - pad, maxV + pad]).range([innerH, 0]);
+  const y = d3
+    .scaleLinear()
+    .domain([minV - pad, maxV + pad])
+    .range([innerH, 0]);
 
   drawAxes(g, x, y, innerH, rotate, xLabel, yLabel, innerW);
 
@@ -207,11 +282,20 @@ function renderArea(
   };
   const innerW = width - margin.left - margin.right;
   const innerH = height - margin.top - margin.bottom;
-  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+  const g = svg
+    .append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  const x = d3.scalePoint().domain(data.map((d) => d.label)).range([0, innerW]).padding(0.5);
+  const x = d3
+    .scalePoint()
+    .domain(data.map((d) => d.label))
+    .range([0, innerW])
+    .padding(0.5);
   const max = d3.max(data, (d) => d.value) ?? 0;
-  const y = d3.scaleLinear().domain([0, max * 1.15]).range([innerH, 0]);
+  const y = d3
+    .scaleLinear()
+    .domain([0, max * 1.15])
+    .range([innerH, 0]);
 
   drawAxes(g, x, y, innerH, rotate, xLabel, yLabel, innerW);
 
@@ -224,8 +308,16 @@ function renderArea(
     .attr("y1", "0%")
     .attr("x2", "0%")
     .attr("y2", "100%");
-  grad.append("stop").attr("offset", "0%").attr("stop-color", color).attr("stop-opacity", 0.6);
-  grad.append("stop").attr("offset", "100%").attr("stop-color", color).attr("stop-opacity", 0.05);
+  grad
+    .append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", color)
+    .attr("stop-opacity", 0.6);
+  grad
+    .append("stop")
+    .attr("offset", "100%")
+    .attr("stop-color", color)
+    .attr("stop-opacity", 0.05);
 
   const areaGen = d3
     .area<ChartPoint>()
@@ -240,7 +332,10 @@ function renderArea(
     .y((d) => y(d.value))
     .curve(d3.curveMonotoneX);
 
-  g.append("path").datum(data).attr("fill", `url(#${gradId})`).attr("d", areaGen);
+  g.append("path")
+    .datum(data)
+    .attr("fill", `url(#${gradId})`)
+    .attr("d", areaGen);
   g.append("path")
     .datum(data)
     .attr("fill", "none")
@@ -318,9 +413,13 @@ function renderPie(
       return pct >= 6 ? `${Math.round(pct)}%` : "";
     });
 
-  const legendG = svg.append("g").attr("transform", `translate(${width - 8}, ${topPad})`);
+  const legendG = svg
+    .append("g")
+    .attr("transform", `translate(${width - 8}, ${topPad})`);
   data.forEach((d, i) => {
-    const row = legendG.append("g").attr("transform", `translate(0, ${i * 14})`);
+    const row = legendG
+      .append("g")
+      .attr("transform", `translate(0, ${i * 14})`);
     row
       .append("rect")
       .attr("x", -110)
@@ -349,7 +448,10 @@ function drawAxes(
   yLabel: string | null | undefined,
   innerW: number,
 ) {
-  const xAxis = g.append("g").attr("transform", `translate(0,${innerH})`).call(d3.axisBottom(x as any));
+  const xAxis = g
+    .append("g")
+    .attr("transform", `translate(0,${innerH})`)
+    .call(d3.axisBottom(x as any));
   xAxis
     .selectAll("text")
     .style("font-size", "10px")

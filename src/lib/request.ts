@@ -16,7 +16,11 @@ export class ApiError extends Error {
 
 const BASE_URL = process.env.NODE_ENV === "production" ? "/PrismBackend" : "";
 
-async function parseResponse<T>(res: Response, url: string, method: string): Promise<T> {
+async function parseResponse<T>(
+  res: Response,
+  url: string,
+  method: string,
+): Promise<T> {
   let raw: string;
   try {
     raw = await res.text();
@@ -28,7 +32,10 @@ async function parseResponse<T>(res: Response, url: string, method: string): Pro
   try {
     data = raw ? JSON.parse(raw) : null;
   } catch {
-    console.error(`[request] ${method} ${url} → ${res.status} (respuesta no es JSON):`, raw.slice(0, 500));
+    console.error(
+      `[request] ${method} ${url} → ${res.status} (respuesta no es JSON):`,
+      raw.slice(0, 500),
+    );
     throw new ApiError(
       `El servidor respondió ${res.status} ${res.statusText || ""}`.trim(),
       res.status,

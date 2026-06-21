@@ -41,14 +41,17 @@ export function ExerciseViewPage() {
     navigate("/");
   };
 
-  const chartData = exercise ? normalizeChartData(exercise.chartDataJson) : null;
+  const chartData = exercise
+    ? normalizeChartData(exercise.chartDataJson)
+    : null;
   const diffColor = exercise ? DIFFICULTY_COLOR[exercise.difficulty] : null;
 
   return (
     <div
       style={{
         backgroundColor: "#f4f3f0",
-        backgroundImage: "radial-gradient(circle, #d1d1d1 1px, transparent 1px)",
+        backgroundImage:
+          "radial-gradient(circle, #d1d1d1 1px, transparent 1px)",
         backgroundSize: "24px 24px",
         minHeight: "100vh",
         padding: "24px",
@@ -75,7 +78,9 @@ export function ExerciseViewPage() {
             </h3>
             <p className="mb-0" style={{ fontSize: "13px", color: "#737373" }}>
               Bienvenido,{" "}
-              <span style={{ fontWeight: 500, color: "#16140f" }}>{user?.username ?? "—"}</span>
+              <span style={{ fontWeight: 500, color: "#16140f" }}>
+                {user?.username ?? "—"}
+              </span>
             </p>
           </div>
         </div>
@@ -102,9 +107,17 @@ export function ExerciseViewPage() {
           <span className="spinner-border" style={{ color: "#737373" }} />
         </div>
       ) : !exercise ? (
-        <div className="card rounded-4 p-4 text-center" style={{ backgroundColor: "#fff" }}>
-          <p style={{ color: "#737373", marginBottom: 12 }}>Ejercicio no encontrado.</p>
-          <button className="btn btn-dark btn-sm" onClick={() => navigate("/dashboard")}>
+        <div
+          className="card rounded-4 p-4 text-center"
+          style={{ backgroundColor: "#fff" }}
+        >
+          <p style={{ color: "#737373", marginBottom: 12 }}>
+            Ejercicio no encontrado.
+          </p>
+          <button
+            className="btn btn-dark btn-sm"
+            onClick={() => navigate("/dashboard")}
+          >
             Volver al dashboard
           </button>
         </div>
@@ -116,7 +129,12 @@ export function ExerciseViewPage() {
           <div className="d-flex align-items-center gap-3 mb-4">
             <button
               onClick={() => navigate("/dashboard")}
-              style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+              }}
             >
               <ChevronLeft size={20} color="#737373" />
             </button>
@@ -236,7 +254,8 @@ export function ExerciseViewPage() {
                     style={{
                       width: 20,
                       height: 20,
-                      borderRadius: exercise.questionType === "SINGLE_CHOICE" ? "50%" : 4,
+                      borderRadius:
+                        exercise.questionType === "SINGLE_CHOICE" ? "50%" : 4,
                       border: `2px solid ${opt.correct ? "#16803c" : "#d4d4d4"}`,
                       backgroundColor: opt.correct ? "#16803c" : "transparent",
                       display: "flex",
@@ -246,7 +265,14 @@ export function ExerciseViewPage() {
                     }}
                   >
                     {opt.correct && (
-                      <span style={{ color: "#fff", fontSize: 11, fontWeight: 700, lineHeight: 1 }}>
+                      <span
+                        style={{
+                          color: "#fff",
+                          fontSize: 11,
+                          fontWeight: 700,
+                          lineHeight: 1,
+                        }}
+                      >
                         ✓
                       </span>
                     )}
@@ -350,7 +376,11 @@ export function ExerciseViewPage() {
                 />
               )}
               {exercise.mediaType === "AUDIO" && (
-                <audio src={exercise.mediaPath} controls style={{ width: "100%" }} />
+                <audio
+                  src={exercise.mediaPath}
+                  controls
+                  style={{ width: "100%" }}
+                />
               )}
             </div>
           )}
@@ -359,7 +389,9 @@ export function ExerciseViewPage() {
             <button
               className="btn btn-dark btn-sm px-3"
               style={{ borderRadius: 8 }}
-              onClick={() => navigate(`/exercises/${exercise.exerciseId}/probar`)}
+              onClick={() =>
+                navigate(`/exercises/${exercise.exerciseId}/probar`)
+              }
             >
               Probar ejercicio
             </button>
